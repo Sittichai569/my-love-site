@@ -6,78 +6,122 @@
     <title>มีเรื่องจะบอกนะ... ❤️</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;600&display=swap');
         body {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; background: linear-gradient(to bottom, #ffebee, #ffcdd2);
-            font-family: 'Prompt', sans-serif; text-align: center; overflow: hidden;
+            margin: 0; height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background: #ffebee;
+            font-family: 'Prompt', sans-serif; overflow: hidden; position: relative;
         }
-        h1 { color: #d32f2f; margin-bottom: 20px; }
-        .buttons { margin-top: 30px; position: relative; width: 100%; height: 100px; }
-        button {
-            padding: 15px 30px; font-size: 1.2rem; cursor: pointer;
-            border-radius: 50px; border: none; transition: 0.2s; font-weight: bold;
+        .container { z-index: 10; text-align: center; padding: 20px; }
+        h1 { color: #d32f2f; font-size: 2rem; }
+        .buttons { margin-top: 30px; display: flex; justify-content: center; gap: 20px; align-items: center; min-height: 100px; width: 100%; position: relative; }
+        button { 
+            padding: 15px 30px; font-size: 1.2rem; cursor: pointer; 
+            border-radius: 50px; border: none; font-weight: bold; transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        #yesBtn { background-color: #4caf50; color: white; z-index: 10; }
-        #noBtn { background-color: #f44336; color: white; position: absolute; }
+        #yesBtn { background: #4caf50; color: white; z-index: 100; white-space: nowrap; }
+        #noBtn { background: #f44336; color: white; position: relative; z-index: 50; }
+        
+        .heart {
+            position: absolute; color: #ff1744; font-size: 1.5rem;
+            pointer-events: none; animation: floatUp 3s linear forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 
-    <h1 id="question">เป็นแฟนกับเราไหม? ❤️</h1>
-    <div id="image-container">
-        <img id="mainImage" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFs *giphy.gif" width="250">
-    </div>
-
-    <div class="buttons">
-        <button id="yesBtn">ตกลง</button>
-        <button id="noBtn">ไม่</button>
+    <div class="container" id="main-content">
+        <h1 id="header">เป็นแฟนกับเราไหม? ❤️</h1>
+        <div id="img-box">
+            <img id="main-img" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/KztT2c4u8mYYUiCi7W/giphy.gif" width="200">
+        </div>
+        <div class="buttons">
+            <button id="yesBtn">ตกลง</button>
+            <button id="noBtn">ไม่</button>
+        </div>
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
-        const question = document.getElementById('question');
-        const mainImage = document.getElementById('mainImage');
+        const header = document.getElementById('header');
+        const mainImg = document.getElementById('main-img');
+        let fontSize = 1.2;
+        let noCount = 0;
 
-        let yesFontSize = 1.2;
+        // ลิสต์ข้อความที่จะเด้งขึ้นมาตามลำดับการกด
+        const messages = [
+            "แน่ใจหรอ? 🥺",
+            "คิดอีกทีน้าาาา ตัวเองงง",
+            "ใจร้ายจังเลยยยย 😭",
+            "กดผิดรึเปล่าเนี่ย?",
+            "ไม่อยากเป็นแฟนเราจริงๆ หรอ? 💔",
+            "ยอมแพ้เถอะ กดตกลงได้แล้ว!",
+            "ตื๊อเท่านั้นที่ครองโลก! กดไม่ไม่ได้หรอก",
+            "โอ้โห... ยังจะกดอีก! 😂",
+            "ไม่ให้กดแล้วน้าาาาาา",
+            "รักนะจุ๊บๆ กดตกลงเถอะ ❤️"
+        ];
 
-        // ลูกเล่นปุ่ม "ไม่" หนี และทำให้ปุ่ม "ตกลง" ใหญ่ขึ้นเรื่อยๆ
+        function handleNoClick() {
+            // 1. แสดงข้อความ Alert สุ่มหรือตามลำดับ
+            const msg = messages[noCount % messages.length];
+            alert(msg);
+            noCount++;
+
+            // 2. ทำให้ปุ่มหนีไปที่ใหม่
+            noBtn.style.position = 'absolute';
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 40) + 20;
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 40) + 20;
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+
+            // 3. ขยายปุ่มตกลงให้ใหญ่ขึ้นเรื่อยๆ
+            fontSize += 0.5;
+            yesBtn.style.fontSize = fontSize + 'rem';
+            yesBtn.style.padding = (15 + (noCount * 5)) + 'px ' + (30 + (noCount * 10)) + 'px';
+        }
+
+        // เมื่อเอาเมาส์จ่อ (ทำให้หนี)
         noBtn.addEventListener('mouseover', () => {
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            noBtn.style.left = `${x}px`;
-            noBtn.style.top = `${y}px`;
-            
-            // ขยายปุ่มตกลงให้เต็มจอไปเลยถ้าเขาพยายามจะกดไม่บ่อยๆ!
-            yesFontSize += 0.5;
-            yesBtn.style.fontSize = `${yesFontSize}rem`;
-            yesBtn.style.padding = `${15 + (yesFontSize*5)}px ${30 + (yesFontSize*10)}px`;
+            if(noCount < 3) { // 3 ครั้งแรกให้แค่หนีเฉยๆ ก่อน
+                noBtn.style.position = 'absolute';
+                const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+                const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+                noBtn.style.left = x + 'px';
+                noBtn.style.top = y + 'px';
+            }
         });
 
-        // --- ส่วนที่เพิ่มใหม่: ลูกเล่นเมื่อกดปุ่ม "ไม่" ---
-        noBtn.addEventListener('click', () => {
-            // สร้างลิสต์ข้อความกวนๆ สุ่มแสดง
-            const messages = [
-                "อุ๊ย! กดผิดป่าวเนี่ย? 😂",
-                "คิดดีๆ นะคุณแฟน... 😉",
-                "ใจร้ายจังเล้ยยย! 🥺",
-                "ปุ่ม 'ตกลง' อยู่ฝั่งนู้นน้าาา 👉",
-                "ไม่ได้ยิน! กดปุ่มเขียวดีกว่าเร็ว!",
-                "งือออ อย่ากดเลยน้าาา ❤️"
-            ];
-            // สุ่มเลือกข้อความจากลิสต์
-            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-            // แสดงกล่องข้อความเด้งขึ้นมา
-            alert(randomMessage);
-        });
-        // ---------------------------------------------
+        // เมื่อกดปุ่ม "ไม่" (ให้เด้งข้อความ)
+        noBtn.addEventListener('click', handleNoClick);
 
-        // เมื่อกด "ตกลง" จะมีพลุฉลอง
+        // เมื่อกดปุ่ม "ตกลง"
         yesBtn.addEventListener('click', () => {
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            question.innerHTML = "เย้! รักที่สุดเล๊ยยที่รักของเค้า ❤️";
-            mainImage.src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFs *giphy.gif";
-            noBtn.style.display = 'none';
+            
+            // ล้างหน้าจอแล้วโชว์ความสำเร็จ
+            document.body.style.background = '#fce4ec';
+            document.getElementById('main-content').innerHTML = `
+                <h1 style="color:#d32f2f; font-size: 2.5rem;">เย้! เป็นแฟนกันแล้วนะ ❤️</h1>
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/lNyS63Vat6N68/giphy.gif" width="300">
+            `;
+
+            // สร้างหัวใจลอยวนไป
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.bottom = '-5vh';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 3000);
+            }, 150);
         });
     </script>
 </body>
