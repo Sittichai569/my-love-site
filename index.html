@@ -3,37 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>มีเรื่องจะบอก...</title>
+    <title>มีเรื่องจะบอกนะ... ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #ffebee;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; background: linear-gradient(to bottom, #ffebee, #ffcdd2);
+            font-family: 'Prompt', sans-serif; text-align: center; overflow: hidden;
         }
-        h1 { color: #d32f2f; }
-        .buttons { margin-top: 20px; }
+        h1 { color: #d32f2f; margin-bottom: 20px; }
+        .buttons { margin-top: 30px; position: relative; width: 100%; height: 100px; }
         button {
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border-radius: 10px;
-            border: none;
-            transition: 0.3s;
+            padding: 15px 30px; font-size: 1.2rem; cursor: pointer;
+            border-radius: 50px; border: none; transition: 0.2s; font-weight: bold;
         }
-        #yesBtn { background-color: #4caf50; color: white; margin-right: 10px; }
+        #yesBtn { background-color: #4caf50; color: white; z-index: 10; }
         #noBtn { background-color: #f44336; color: white; position: absolute; }
     </style>
 </head>
 <body>
 
-    <h1 id="question">เป็นแฟนกับเค้าไหม? ❤️</h1>
+    <h1 id="question">เป็นแฟนกับเราไหม? ❤️</h1>
     <div id="image-container">
-        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/KztT2c4u8mYYUiCi7W/giphy.gif" width="200">
+        <img id="mainImage" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFs *giphy.gif" width="250">
     </div>
 
     <div class="buttons">
@@ -44,22 +36,48 @@
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
+        const question = document.getElementById('question');
+        const mainImage = document.getElementById('mainImage');
 
-        // ลูกเล่น: เมื่อเอาเมาส์ไปจ่อปุ่ม "ไม่" ปุ่มจะหนีไปที่อื่น
+        let yesFontSize = 1.2;
+
+        // ลูกเล่นปุ่ม "ไม่" หนี และทำให้ปุ่ม "ตกลง" ใหญ่ขึ้นเรื่อยๆ
         noBtn.addEventListener('mouseover', () => {
             const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
             const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
             noBtn.style.left = `${x}px`;
             noBtn.style.top = `${y}px`;
+            
+            // ขยายปุ่มตกลงให้เต็มจอไปเลยถ้าเขาพยายามจะกดไม่บ่อยๆ!
+            yesFontSize += 0.5;
+            yesBtn.style.fontSize = `${yesFontSize}rem`;
+            yesBtn.style.padding = `${15 + (yesFontSize*5)}px ${30 + (yesFontSize*10)}px`;
         });
 
-        // เมื่อกด "ตกลง"
+        // --- ส่วนที่เพิ่มใหม่: ลูกเล่นเมื่อกดปุ่ม "ไม่" ---
+        noBtn.addEventListener('click', () => {
+            // สร้างลิสต์ข้อความกวนๆ สุ่มแสดง
+            const messages = [
+                "อุ๊ย! กดผิดป่าวเนี่ย? 😂",
+                "คิดดีๆ นะคุณแฟน... 😉",
+                "ใจร้ายจังเล้ยยย! 🥺",
+                "ปุ่ม 'ตกลง' อยู่ฝั่งนู้นน้าาา 👉",
+                "ไม่ได้ยิน! กดปุ่มเขียวดีกว่าเร็ว!",
+                "งือออ อย่ากดเลยน้าาา ❤️"
+            ];
+            // สุ่มเลือกข้อความจากลิสต์
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            // แสดงกล่องข้อความเด้งขึ้นมา
+            alert(randomMessage);
+        });
+        // ---------------------------------------------
+
+        // เมื่อกด "ตกลง" จะมีพลุฉลอง
         yesBtn.addEventListener('click', () => {
-            document.body.innerHTML = `
-                <h1 style="color: #d32f2f;">เย้! น่ารักที่สุดเลย ❤️</h1>
-                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/lNyS63Vat6N68/giphy.gif" width="300">
-                <p>เค้ารักเธอมั๊กๆๆๆๆๆเลยยย!</p>
-            `;
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            question.innerHTML = "เย้! รักที่สุดเลยนะคุณแฟน ❤️";
+            mainImage.src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFs *giphy.gif";
+            noBtn.style.display = 'none';
         });
     </script>
 </body>
