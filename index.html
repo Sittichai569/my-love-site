@@ -12,34 +12,36 @@
             align-items: center; justify-content: center; background: #ffebee;
             font-family: 'Prompt', sans-serif; overflow: hidden; position: relative;
         }
-        .container { z-index: 10; text-align: center; padding: 20px; }
-        h1 { color: #d32f2f; font-size: 2rem; }
-        .buttons { margin-top: 30px; display: flex; justify-content: center; gap: 20px; align-items: center; min-height: 100px; width: 100%; position: relative; }
-        button { 
-            padding: 15px 30px; font-size: 1.2rem; cursor: pointer; 
-            border-radius: 50px; border: none; font-weight: bold; transition: 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        .container { text-align: center; z-index: 10; width: 100%; }
+        h1 { color: #d32f2f; font-size: 2rem; margin-bottom: 20px; }
+        .buttons { 
+            margin-top: 30px; display: flex; justify-content: center; 
+            gap: 20px; align-items: center; min-height: 200px; width: 100%; position: relative; 
         }
-        #yesBtn { background: #4caf50; color: white; z-index: 100; white-space: nowrap; }
+        button { 
+            padding: 15px 35px; font-size: 1.2rem; cursor: pointer; 
+            border-radius: 50px; border: none; font-weight: bold; transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        #yesBtn { background: #4caf50; color: white; z-index: 100; }
+        /* ปุ่ม 'ไม่' เริ่มต้นแบบปกติ ไม่ต้องใส่ absolute ใน CSS */
         #noBtn { background: #f44336; color: white; position: relative; z-index: 50; }
         
-        .heart {
+        .heart-fly {
             position: absolute; color: #ff1744; font-size: 1.5rem;
             pointer-events: none; animation: floatUp 3s linear forwards;
         }
         @keyframes floatUp {
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+            100% { transform: translateY(-115vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="main-content">
-        <h1 id="header">เป็นแฟนกับเราไหม? ❤️</h1>
-        <div id="img-box">
-            <img id="main-img" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/KztT2c4u8mYYUiCi7W/giphy.gif" width="200">
-        </div>
+    <div class="container" id="main-ui">
+        <h1 id="title-text">เป็นแฟนกับเราไหม? ❤️</h1>
+        <img id="main-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/KztT2c4u8mYYUiCi7W/giphy.gif" width="200">
         <div class="buttons">
             <button id="yesBtn">ตกลง</button>
             <button id="noBtn">ไม่</button>
@@ -49,74 +51,58 @@
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
-        const header = document.getElementById('header');
-        const mainImg = document.getElementById('main-img');
-        let fontSize = 1.2;
-        let noCount = 0;
-
-        // ลิสต์ข้อความที่จะเด้งขึ้นมาตามลำดับการกด
+        
+        // ลิสต์ข้อความที่จะเด้ง (คุณเพิ่มข้อความเองได้เลย)
         const messages = [
-            "แน่ใจหรอ? 🥺",
-            "คิดอีกทีน้าาาา ตัวเองงง",
+            "แน่ใจหรอคะ? 🥺",
+            "คิดอีกทีน้าาาา เราน่ารักนะ!",
             "ใจร้ายจังเลยยยย 😭",
-            "กดผิดรึเปล่าเนี่ย?",
+            "ลองกดปุ่มเขียวดูสิ มันสวยนะ",
             "ไม่อยากเป็นแฟนเราจริงๆ หรอ? 💔",
-            "ยอมแพ้เถอะ กดตกลงได้แล้ว!",
-            "ตื๊อเท่านั้นที่ครองโลก! กดไม่ไม่ได้หรอก",
-            "โอ้โห... ยังจะกดอีก! 😂",
-            "ไม่ให้กดแล้วน้าาาาาา",
-            "รักนะจุ๊บๆ กดตกลงเถอะ ❤️"
+            "ตื๊อเท่านั้นที่ครองโลก!",
+            "ยังจะกดอีกหรอ! 😂",
+            "รักนะจุ๊บๆ อย่าใจร้ายเลย ❤️",
+            "ปุ่มสีเขียวรออยู่นะจ๊ะ 😉"
         ];
 
-        function handleNoClick() {
-            // 1. แสดงข้อความ Alert สุ่มหรือตามลำดับ
-            const msg = messages[noCount % messages.length];
-            alert(msg);
-            noCount++;
+        let messageIndex = 0;
 
-            // 2. ทำให้ปุ่มหนีไปที่ใหม่
+        // ฟังก์ชันจัดการเมื่อกดปุ่ม "ไม่"
+        noBtn.addEventListener('click', () => {
+            // 1. แสดงข้อความตามลำดับ
+            alert(messages[messageIndex]);
+            
+            // เพิ่มลำดับข้อความ (ถ้าถึงข้อความสุดท้ายให้วนใหม่)
+            messageIndex = (messageIndex + 1) % messages.length;
+
+            // 2. ทำให้ปุ่มขยับไปที่ใหม่ (ไม่ให้หายไป)
             noBtn.style.position = 'absolute';
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 40) + 20;
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 40) + 20;
+            // สุ่มตำแหน่งให้อยู่ในขอบเขตหน้าจอ (หักลบขอบออก 50px เพื่อไม่ให้ติดขอบเกินไป)
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 50);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 50);
+            
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
 
-            // 3. ขยายปุ่มตกลงให้ใหญ่ขึ้นเรื่อยๆ
-            fontSize += 0.5;
-            yesBtn.style.fontSize = fontSize + 'rem';
-            yesBtn.style.padding = (15 + (noCount * 5)) + 'px ' + (30 + (noCount * 10)) + 'px';
-        }
-
-        // เมื่อเอาเมาส์จ่อ (ทำให้หนี)
-        noBtn.addEventListener('mouseover', () => {
-            if(noCount < 3) { // 3 ครั้งแรกให้แค่หนีเฉยๆ ก่อน
-                noBtn.style.position = 'absolute';
-                const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-                const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-                noBtn.style.left = x + 'px';
-                noBtn.style.top = y + 'px';
-            }
+            // 3. ทำให้ปุ่มตกลงขยายใหญ่ขึ้นทีละนิด
+            let currentScale = 1 + (messageIndex * 0.1);
+            yesBtn.style.transform = `scale(${currentScale})`;
         });
-
-        // เมื่อกดปุ่ม "ไม่" (ให้เด้งข้อความ)
-        noBtn.addEventListener('click', handleNoClick);
 
         // เมื่อกดปุ่ม "ตกลง"
         yesBtn.addEventListener('click', () => {
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             
-            // ล้างหน้าจอแล้วโชว์ความสำเร็จ
             document.body.style.background = '#fce4ec';
-            document.getElementById('main-content').innerHTML = `
+            document.getElementById('main-ui').innerHTML = `
                 <h1 style="color:#d32f2f; font-size: 2.5rem;">เย้! เป็นแฟนกันแล้วนะ ❤️</h1>
                 <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/lNyS63Vat6N68/giphy.gif" width="300">
             `;
 
-            // สร้างหัวใจลอยวนไป
             setInterval(() => {
                 const heart = document.createElement('div');
                 heart.innerHTML = '❤️';
-                heart.className = 'heart';
+                heart.className = 'heart-fly';
                 heart.style.left = Math.random() * 100 + 'vw';
                 heart.style.bottom = '-5vh';
                 document.body.appendChild(heart);
