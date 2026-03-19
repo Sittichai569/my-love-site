@@ -7,29 +7,33 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;600&display=swap');
+        
         body {
             margin: 0; height: 100vh; display: flex; flex-direction: column;
             align-items: center; justify-content: center; background: #ffebee;
             font-family: 'Prompt', sans-serif; overflow: hidden; position: relative;
         }
+
         .container { text-align: center; z-index: 10; width: 100%; }
-        h1 { color: #d32f2f; font-size: 2rem; margin-bottom: 20px; }
+        h1 { color: #d32f2f; font-size: 2rem; margin-bottom: 20px; position: relative; z-index: 100; }
+
         .buttons { 
             margin-top: 30px; display: flex; justify-content: center; 
-            gap: 20px; align-items: center; min-height: 200px; width: 100%; position: relative; 
+            gap: 40px; align-items: center; min-height: 250px; width: 100%; position: relative; 
         }
+
         button { 
             padding: 15px 35px; font-size: 1.2rem; cursor: pointer; 
-            border-radius: 50px; border: none; font-weight: bold; transition: 0.2s;
+            border-radius: 50px; border: none; font-weight: bold; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        #yesBtn { background: #4caf50; color: white; z-index: 100; }
-        /* ปุ่ม 'ไม่' เริ่มต้นแบบปกติ ไม่ต้องใส่ absolute ใน CSS */
-        #noBtn { background: #f44336; color: white; position: relative; z-index: 50; }
+
+        #yesBtn { background: #4caf50; color: white; z-index: 1000; position: relative; transition: transform 0.2s; }
+        #noBtn { background: #f44336; color: white; z-index: 50; position: relative; }
         
         .heart-fly {
             position: absolute; color: #ff1744; font-size: 1.5rem;
-            pointer-events: none; animation: floatUp 3s linear forwards;
+            pointer-events: none; animation: floatUp 3s linear forwards; z-index: 1;
         }
         @keyframes floatUp {
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
@@ -41,7 +45,7 @@
 
     <div class="container" id="main-ui">
         <h1 id="title-text">เป็นแฟนกับเราไหม? ❤️</h1>
-        <img id="main-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/KztT2c4u8mYYUiCi7W/giphy.gif" width="200">
+        <img id="main-gif" src="JUY.jpg" width="200">
         <div class="buttons">
             <button id="yesBtn">ตกลง</button>
             <button id="noBtn">ไม่</button>
@@ -51,64 +55,39 @@
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
+        const mainUI = document.getElementById('main-ui');
         
-        // ลิสต์ข้อความที่จะเด้ง (คุณเพิ่มข้อความเองได้เลย)
-        const messages = [
-            "แน่ใจหรอคะ? 🥺",
-            "คิดอีกทีน้าาาา เราน่ารักนะ!",
-            "ใจร้ายจังเลยยยย 😭",
-            "ลองกดปุ่มเขียวดูสิ มันสวยนะ",
-            "ไม่อยากเป็นแฟนเราจริงๆ หรอ? 💔",
-            "ตื๊อเท่านั้นที่ครองโลก!",
-            "ยังจะกดอีกหรอ! 😂",
-            "รักนะจุ๊บๆ อย่าใจร้ายเลย ❤️",
-            "ปุ่มสีเขียวรออยู่นะจ๊ะ 😉"
-        ];
+        const messages = ["แน่ใจหรอคะ? 🥺", "คิดอีกทีน้าาาา", "ใจร้ายจังเลยยยย 😭", "ไม่อยากเป็นแฟนเราจริงหรอ?", "ปุ่มสีเขียวรออยู่นะจ๊ะ 😉","ถ้าไม่กดตกลง จะตามตื๊อแบบนี้แหละ!","กดยากหน่อยนะ แต่รักมากนะบอกเลย","ไปกินไอติมกันไหม? กดตกลงก่อนสิ","ยอมใจเลย กด 'ไม่' เก่งขนาดนี้!","ตื้อเท่านั้นที่ครองโลกกกกกก!",];
+        let msgIdx = 0;
 
-        let messageIndex = 0;
+        // ฟังก์ชันปุ่ม 'ไม่'
+        noBtn.onclick = function() {
+            alert(messages[msgIdx]);
+            msgIdx = (msgIdx + 1) % messages.length;
+            noBtn.style.position = 'fixed';
+            const p = 100;
+            noBtn.style.left = (Math.random() * (window.innerWidth - p * 2) + p) + 'px';
+            noBtn.style.top = (Math.random() * (window.innerHeight - p * 2) + p) + 'px';
+            yesBtn.style.transform = `scale(${1 + (msgIdx * 0.15)})`;
+        };
 
-        // ฟังก์ชันจัดการเมื่อกดปุ่ม "ไม่"
-        noBtn.addEventListener('click', () => {
-            // 1. แสดงข้อความตามลำดับ
-            alert(messages[messageIndex]);
-            
-            // เพิ่มลำดับข้อความ (ถ้าถึงข้อความสุดท้ายให้วนใหม่)
-            messageIndex = (messageIndex + 1) % messages.length;
-
-            // 2. ทำให้ปุ่มขยับไปที่ใหม่ (ไม่ให้หายไป)
-            noBtn.style.position = 'absolute';
-            // สุ่มตำแหน่งให้อยู่ในขอบเขตหน้าจอ (หักลบขอบออก 50px เพื่อไม่ให้ติดขอบเกินไป)
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 50);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 50);
-            
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
-
-            // 3. ทำให้ปุ่มตกลงขยายใหญ่ขึ้นทีละนิด
-            let currentScale = 1 + (messageIndex * 0.1);
-            yesBtn.style.transform = `scale(${currentScale})`;
-        });
-
-        // เมื่อกดปุ่ม "ตกลง"
-        yesBtn.addEventListener('click', () => {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            
+        // ฟังก์ชันปุ่ม 'ตกลง'
+        yesBtn.onclick = function() {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
             document.body.style.background = '#fce4ec';
-            document.getElementById('main-ui').innerHTML = `
-                <h1 style="color:#d32f2f; font-size: 2.5rem;">เย้! เป็นแฟนกันแล้วนะ ❤️</h1>
-                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/lNyS63Vat6N68/giphy.gif" width="300">
+            mainUI.innerHTML = `
+                <h1 style="color:#d32f2f; font-size: 2.5rem; position:relative; z-index:100;"> เย้! เป็นแฟนกันแล้วนะ ❤️</h1>
+                <img src="MRR.jpg" width="300"><p class="sub-text">"รู้ไหมว่าเค้าใช้เวลาทำใจอยู่นานมาก กว่าจะกล้าขอเธอเป็นแฟน เพราะเธอสำคัญกับเค้ามากจนเค้ากลัวจะเสียเธอไป แต่วันนี้พอเค้าได้ขยับสถานะมาอยู่ข้างๆกันจริงๆ มันรู้สึกเหมือนฝันเลย ขอบคุณที่ให้โอกาสเค้าได้ดูแลเธอนะ เค้าจะไม่ทำให้เธอเสียใจที่เลือกเค้าลย เค้าอยากสร้างความทรงจำดีๆ ไปกับเธอเรื่อยๆ ขอบคุณที่เป็นความโชคดีที่สุดในปีนี้ของเค้านะ เค้ารักเธอมากๆๆๆๆๆๆเลยนะที่รักของเค้า"</p> 
+</div>
             `;
-
             setInterval(() => {
-                const heart = document.createElement('div');
-                heart.innerHTML = '❤️';
-                heart.className = 'heart-fly';
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.bottom = '-5vh';
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 3000);
+                const h = document.createElement('div');
+                h.innerHTML = '❤️'; h.className = 'heart-fly';
+                h.style.left = Math.random() * 100 + 'vw'; h.style.bottom = '-5vh';
+                document.body.appendChild(h);
+                setTimeout(() => h.remove(), 3000);
             }, 150);
-        });
+        };
     </script>
 </body>
 </html>
